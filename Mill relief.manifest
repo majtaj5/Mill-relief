@@ -1,0 +1,15 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"addin",
+	"author":	"Piotr Krol",
+	"description":	{
+		"":	""
+	},
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true,
+	"id":	"52673f97-6ba1-47ca-8237-e90eab36f576",
+	"version":	"1.0",
+	"runOnStartup":	false,
+	"sourcewindows":	"Mill relief.vcxproj",
+	"sourcemac":	"Mill relief.xcodeproj"
+}
