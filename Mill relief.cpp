@@ -12,6 +12,51 @@ Ptr<Application> app;
 Ptr<UserInterface> ui;
 
 
+// CommandExecuted event handler.
+class OnExecuteEventHander : public adsk::core::CommandEventHandler
+{
+public:
+	void notify(const Ptr<CommandEventArgs>& eventArgs) override
+	{
+
+	}
+};
+// CommandCreated event handler.
+class CommandCreatedEventHandler : public adsk::core::CommandCreatedEventHandler
+{
+public:
+	void notify(const Ptr<CommandCreatedEventArgs>& eventArgs) override
+	{
+		if (eventArgs)
+		{
+			Ptr<Command> cmd = eventArgs->command();
+			if (cmd)
+			{
+				// Define the inputs.
+				Ptr<CommandInputs> inputs = cmd->commandInputs();
+
+				// Add an input to have a sketch curve or edge selected.
+				Ptr<SelectionCommandInput> curveInput;
+				curveInput = inputs->addSelectionInput("curveInput", "Curve",
+					"Select the sketch or edge curve.");
+				curveInput->addSelectionFilter("SketchCurves");
+				curveInput->addSelectionFilter("Edges");
+
+				// Add an input to get a true/false input.
+				Ptr<BoolValueCommandInput> trueFalseInput;
+				trueFalseInput = inputs->addBoolValueInput("trueFalseInput", "Yes or No",
+					true, "", true);
+
+				// Connect to the command executed event.
+				Ptr<CommandEvent> onExec = cmd->execute();
+				bool isOk = onExec->add(&onExecuteHandler_);
+			}
+		}
+	}
+
+private:
+	OnExecuteEventHander onExecuteHandler_;
+} _cmdCreated;
 bool checkReturn(Ptr<Base> returnObj)
 {
     if (returnObj)
@@ -40,7 +85,7 @@ extern "C" XI_EXPORT bool run(const char* context)
 
 	ui->messageBox("Czesc, Tomasz");
     // Create a command definition and add a button to the CREATE panel.
-    Ptr<CommandDefinition> cmdDef = ui->commandDefinitions()->addButtonDefinition("adskMill reliefCPPAddIn", "Mill relief", "Creates a Mill relief component", "Resources/Mill relief");
+    Ptr<CommandDefinition> cmdDef = ui->commandDefinitions()->addButtonDefinition("s reliefCPPAddIn", "MMill relief", "a Mill relief component", "Resources/Mill relief");
     if (!checkReturn(cmdDef))
         return false;
 
@@ -52,10 +97,9 @@ extern "C" XI_EXPORT bool run(const char* context)
     if (!checkReturn(gearButton))
         return false;
 
-    // Connect to the command created event.
-    Ptr<CommandCreatedEvent> commandCreatedEvent = cmdDef->commandCreated();
-    if (!checkReturn(commandCreatedEvent))
-        return false;
+	// Connect to the Command Created event.
+	     Ptr<CommandCreatedEvent> commandCreatedEvent = cmdDef->commandCreated();
+	     commandCreatedEvent->add(&_cmdCreated);
 
     ui->messageBox("Czeœæ");
 
