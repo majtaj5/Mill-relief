@@ -36,17 +36,22 @@ public:
 				Ptr<CommandInputs> inputs = cmd->commandInputs();
 
 				// Add an input to have a sketch curve or edge selected.
-				Ptr<SelectionCommandInput> curveInput;
-				curveInput = inputs->addSelectionInput("curveInput", "Curve",
-					"Select the sketch or edge curve.");
-				curveInput->addSelectionFilter("SketchCurves");
-				curveInput->addSelectionFilter("Edges");
+				Ptr<SelectionCommandInput> bodiesInput;
+				bodiesInput = inputs->addSelectionInput("bodiesInput", "Bodies",
+					"Select the bodies.");
+				bodiesInput->addSelectionFilter("Bodies");
+				
 
 				// Add an input to get a true/false input.
 				Ptr<BoolValueCommandInput> trueFalseInput;
 				trueFalseInput = inputs->addBoolValueInput("trueFalseInput", "Yes or No",
 					true, "", true);
 
+				std::string modelWidhtX = "2";
+
+				Ptr<ValueCommandInput> modelWidhtXInput;
+				modelWidhtXInput = inputs->addValueInput("modelWidhtX", "Model Widht X", "", ValueInput::createByString(modelWidhtX));
+				
 				// Connect to the command executed event.
 				Ptr<CommandEvent> onExec = cmd->execute();
 				bool isOk = onExec->add(&onExecuteHandler_);
@@ -83,9 +88,9 @@ extern "C" XI_EXPORT bool run(const char* context)
 	if (!ui)
 		return false;
 
-	ui->messageBox("Czesc, Tomasz");
+	
     // Create a command definition and add a button to the CREATE panel.
-    Ptr<CommandDefinition> cmdDef = ui->commandDefinitions()->addButtonDefinition("s reliefCPPAddIn", "MMill relief", "a Mill relief component", "Resources/Mill relief");
+    Ptr<CommandDefinition> cmdDef = ui->commandDefinitions()->addButtonDefinition("sreliefCPPAddIn", "MMill relief", "a Mill relief component", "Resources/Mill relief");
     if (!checkReturn(cmdDef))
         return false;
 
@@ -101,7 +106,7 @@ extern "C" XI_EXPORT bool run(const char* context)
 	     Ptr<CommandCreatedEvent> commandCreatedEvent = cmdDef->commandCreated();
 	     commandCreatedEvent->add(&_cmdCreated);
 
-    ui->messageBox("Czeœæ");
+    
 
     std::string strContext = context;
     if (strContext.find("IsApplicationStartup", 0) != std::string::npos)
@@ -118,12 +123,18 @@ extern "C" XI_EXPORT bool run(const char* context)
 
 extern "C" XI_EXPORT bool stop(const char* context)
 {
-	if (ui)
-	{
-		ui->messageBox("Stop addin");
-		ui = nullptr;
-	}
+	
+	  Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidCreatePanel");
+    if (!checkReturn(createPanel))
+        return false;
 
+    Ptr<CommandControl> gearButton = createPanel->controls()->itemById("sreliefCPPAddIn");
+    if (checkReturn(gearButton))
+        gearButton->deleteMe();
+    
+    Ptr<CommandDefinition> cmdDef = ui->commandDefinitions()->itemById("sreliefCPPAddIn");
+    if (checkReturn(cmdDef))
+        cmdDef->deleteMe();
 	return true;
 }
 
