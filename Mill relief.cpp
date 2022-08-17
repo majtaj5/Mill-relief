@@ -2,7 +2,10 @@
 #include <Core/CoreAll.h>
 #include <Fusion/FusionAll.h>
 #include <CAM/CAMAll.h>
-
+#include <Fusion/Features/ScaleFeature.h>
+#include <Fusion/Features/ScaleFeatures.h>
+#include <Fusion/Features/ScaleFeatureInput.h>
+#include <Core/Geometry/BoundingBox3D.h>
 
 using namespace adsk::core;
 using namespace adsk::fusion;
@@ -42,15 +45,19 @@ public:
 				bodiesInput->addSelectionFilter("Bodies");
 				
 
-				// Add an input to get a true/false input.
-				Ptr<BoolValueCommandInput> trueFalseInput;
-				trueFalseInput = inputs->addBoolValueInput("trueFalseInput", "Yes or No",
-					true, "", true);
 
 				std::string modelWidhtX = "2";
 
 				Ptr<ValueCommandInput> modelWidhtXInput;
 				modelWidhtXInput = inputs->addValueInput("modelWidhtX", "Model Widht X", "", ValueInput::createByString(modelWidhtX));
+
+				std::string maxPoint;
+				std::string width;
+				std::string height;
+
+				
+
+
 				
 				// Connect to the command executed event.
 				Ptr<CommandEvent> onExec = cmd->execute();
