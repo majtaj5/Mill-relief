@@ -47,7 +47,7 @@ public:
 				trueFalseInput = inputs->addBoolValueInput("trueFalseInput", "Yes or No",
 					true, "", true);
 
-				std::string modelWidhtX = "2";
+				std::string modelWidhtX = "4";
 
 				Ptr<ValueCommandInput> modelWidhtXInput;
 				modelWidhtXInput = inputs->addValueInput("modelWidhtX", "Model Widht X", "", ValueInput::createByString(modelWidhtX));
@@ -94,7 +94,7 @@ extern "C" XI_EXPORT bool run(const char* context)
     if (!checkReturn(cmdDef))
         return false;
 
-    Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidCreatePanel");
+    Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidModifyPanel");
     if (!checkReturn(createPanel))
         return false;
 
@@ -124,7 +124,7 @@ extern "C" XI_EXPORT bool run(const char* context)
 extern "C" XI_EXPORT bool stop(const char* context)
 {
 	
-	  Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidCreatePanel");
+	  Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidModifyPanel");
     if (!checkReturn(createPanel))
         return false;
 
