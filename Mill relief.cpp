@@ -17,6 +17,24 @@ Ptr<UserInterface> ui;
 
 // Global command input declarations.
 Ptr<BoundingBox3D> _selectedBodies;
+Ptr<TextBoxCommandInput> _xDimension;
+Ptr<TextBoxCommandInput> _yDimension;
+Ptr<TextBoxCommandInput> _zDimension;
+
+double CalculatedX;
+double CalculatedY;
+double CalculatedZ;
+
+void CalculateDimensions();
+
+class ScaleInputChangedHandler : public adsk::core::InputChangedEventHandler
+{
+public:
+	void notify(const Ptr<InputChangedEventArgs>& eventArgs) override
+	{
+		
+	}
+};
 
 
 class MySelectHandler : public SelectionEventHandler
@@ -33,6 +51,18 @@ public:
 
 		_selectedBodies = body->boundingBox();
 		app->log("test 2 ");
+
+		CalculateDimensions();
+
+		Ptr<Design> des = app->activeProduct();
+		std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX,"mm", true);
+		_xDimension->text(CalculatedXText);
+
+		std::string CalculatedYText = des->unitsManager()->formatInternalValue(CalculatedY, "mm", true);
+		_yDimension->text(CalculatedYText);
+
+		std::string CalculatedZText = des->unitsManager()->formatInternalValue(CalculatedZ, "mm", true);
+		_zDimension->text(CalculatedZText);
 
 	}
 };
@@ -53,7 +83,9 @@ public:
 			std::to_string(_selectedBodies->maxPoint()->y()) + ", " +
 			std::to_string(_selectedBodies->maxPoint()->z()));
 		// Display the results.
-		app->log("test ");
+		app->log(std::to_string(CalculatedX));
+		app->log(std::to_string(CalculatedY));
+		app->log(std::to_string(CalculatedZ));
 		
 	}
 };
@@ -76,6 +108,14 @@ public:
 				Ptr<SelectionCommandInput> bodiesInput = inputs->addSelectionInput("bodiesInput", "Bodies",
 					"Select the bodies.");
 				bodiesInput->addSelectionFilter("Bodies");
+
+				_xDimension = inputs->addTextBoxCommandInput("xDimension", "Dimension in X", "", 1, true);
+
+				_yDimension = inputs->addTextBoxCommandInput("yDimension", "Dimension in Y", "", 1, true);
+
+				_zDimension = inputs->addTextBoxCommandInput("zDimension", "Dimension in Z", "", 1, true);
+
+
 
 				Ptr<SelectionEvent> select = cmd->select();
 
@@ -167,6 +207,29 @@ extern "C" XI_EXPORT bool stop(const char* context)
 		cmdDef->deleteMe();
 	return true;
 }
+
+void CalculateDimensions() {
+
+	double xmin = _selectedBodies->minPoint()->x();
+	double xmax = _selectedBodies->maxPoint()->x();
+	double ymin = _selectedBodies->minPoint()->y();
+	double ymax = _selectedBodies->maxPoint()->y();
+	double zmin = _selectedBodies->minPoint()->z();
+	double zmax = _selectedBodies->maxPoint()->z();
+
+	CalculatedX = xmax- xmin;
+	CalculatedY = ymax- ymin;
+	CalculatedZ = zmax- zmin;
+
+
+
+	app->log("test 3 ");
+	
+
+
+
+};
+
 
 
 #ifdef XI_WIN
