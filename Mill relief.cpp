@@ -2,6 +2,10 @@
 #include <Core/CoreAll.h>
 #include <Fusion/FusionAll.h>
 #include <CAM/CAMAll.h>
+#include <iostream>
+#include <format>
+#include <string>
+#include <Fusion/BRep/BRepBody.h>
 
 
 using namespace adsk::core;
@@ -11,6 +15,27 @@ using namespace adsk::cam;
 Ptr<Application> app;
 Ptr<UserInterface> ui;
 
+// Global command input declarations.
+Ptr<BoundingBox3D> _selectedBodies;
+
+
+class MySelectHandler : public SelectionEventHandler
+{
+public:
+	void notify(const Ptr<SelectionEventArgs>& eventArgs) override
+	{
+		if (!eventArgs)
+			return;
+		Ptr<Selection> selection = eventArgs->selection();
+		
+		Ptr<BRepBody> body = selection->entity();
+		
+
+		_selectedBodies = body->boundingBox();
+		app->log("test 2 ");
+		
+	}
+};
 
 // CommandExecuted event handler.
 class OnExecuteEventHander : public adsk::core::CommandEventHandler
@@ -18,7 +43,21 @@ class OnExecuteEventHander : public adsk::core::CommandEventHandler
 public:
 	void notify(const Ptr<CommandEventArgs>& eventArgs) override
 	{
+		
+		// Display the results.
+		app->log("Min Point: " + std::to_string(_selectedBodies->minPoint()->x()) + ", " +
+			std::to_string(_selectedBodies->minPoint()->y()) + ", " +
+			std::to_string(_selectedBodies->minPoint()->z()));
 
+		app->log("Max Point: " + std::to_string(_selectedBodies->maxPoint()->x()) + ", " +
+			std::to_string(_selectedBodies->maxPoint()->y()) + ", " +
+			std::to_string(_selectedBodies->maxPoint()->z()));
+		// Display the results.
+		app->log("test ");
+		// Get the bounding box.
+
+		
+		
 	}
 };
 // CommandCreated event handler.
@@ -32,35 +71,38 @@ public:
 			Ptr<Command> cmd = eventArgs->command();
 			if (cmd)
 			{
+				Ptr<Command> cmd = eventArgs->command();
 				// Define the inputs.
 				Ptr<CommandInputs> inputs = cmd->commandInputs();
 
-				// Add an input to have a sketch curve or edge selected.
-				Ptr<SelectionCommandInput> bodiesInput;
-				bodiesInput = inputs->addSelectionInput("bodiesInput", "Bodies",
+				// Add an input to have a body selected.
+				Ptr<SelectionCommandInput> bodiesInput = inputs->addSelectionInput("bodiesInput", "Bodies",
 					"Select the bodies.");
 				bodiesInput->addSelectionFilter("Bodies");
 				
+				Ptr<SelectionEvent> select = cmd->select();
+				if (!select)
+					return;
+				select->add(&m_selectHandler);
+			
 
-				// Add an input to get a true/false input.
-				Ptr<BoolValueCommandInput> trueFalseInput;
-				trueFalseInput = inputs->addBoolValueInput("trueFalseInput", "Yes or No",
-					true, "", true);
-
-				std::string modelWidhtX = "2";
-
-				Ptr<ValueCommandInput> modelWidhtXInput;
-				modelWidhtXInput = inputs->addValueInput("modelWidhtX", "Model Widht X", "", ValueInput::createByString(modelWidhtX));
+			
 				
+
+			
+			
+	
 				// Connect to the command executed event.
 				Ptr<CommandEvent> onExec = cmd->execute();
 				bool isOk = onExec->add(&onExecuteHandler_);
+
 			}
 		}
 	}
 
 private:
 	OnExecuteEventHander onExecuteHandler_;
+	MySelectHandler m_selectHandler;
 } _cmdCreated;
 bool checkReturn(Ptr<Base> returnObj)
 {
@@ -94,7 +136,7 @@ extern "C" XI_EXPORT bool run(const char* context)
     if (!checkReturn(cmdDef))
         return false;
 
-    Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidCreatePanel");
+    Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidModifyPanel");
     if (!checkReturn(createPanel))
         return false;
 
@@ -124,7 +166,7 @@ extern "C" XI_EXPORT bool run(const char* context)
 extern "C" XI_EXPORT bool stop(const char* context)
 {
 	
-	  Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidCreatePanel");
+	  Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidModifyPanel");
     if (!checkReturn(createPanel))
         return false;
 
