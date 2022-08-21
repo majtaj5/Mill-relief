@@ -17,6 +17,11 @@ Ptr<UserInterface> ui;
 
 // Global command input declarations.
 Ptr<BoundingBox3D> _selectedBodies;
+Ptr<TextBoxCommandInput> _xDimension;
+Ptr<TextBoxCommandInput> _yDimension;
+Ptr<TextBoxCommandInput> _zDimension;
+
+void CalculateDimensions();
 
 
 class MySelectHandler : public SelectionEventHandler
@@ -33,6 +38,8 @@ public:
 
 		_selectedBodies = body->boundingBox();
 		app->log("test 2 ");
+
+		CalculateDimensions();
 
 	}
 };
@@ -76,6 +83,14 @@ public:
 				Ptr<SelectionCommandInput> bodiesInput = inputs->addSelectionInput("bodiesInput", "Bodies",
 					"Select the bodies.");
 				bodiesInput->addSelectionFilter("Bodies");
+
+				_xDimension = inputs->addTextBoxCommandInput("xDimension", "Dimension in X", "", 1, true);
+
+				_yDimension = inputs->addTextBoxCommandInput("yDimension", "Dimension in Y", "", 1, true);
+
+				_zDimension = inputs->addTextBoxCommandInput("zDimension", "Dimension in Z", "", 1, true);
+
+
 
 				Ptr<SelectionEvent> select = cmd->select();
 
@@ -167,6 +182,29 @@ extern "C" XI_EXPORT bool stop(const char* context)
 		cmdDef->deleteMe();
 	return true;
 }
+
+void CalculateDimensions() {
+
+	double xmin = _selectedBodies->minPoint()->x();
+	double xmax = _selectedBodies->maxPoint()->x();
+	double ymin = _selectedBodies->minPoint()->y();
+	double ymax = _selectedBodies->maxPoint()->y();
+	double zmin = _selectedBodies->minPoint()->z();
+	double zmax = _selectedBodies->maxPoint()->z();
+
+	_xDimension == xmax- xmin;
+	_yDimension == ymax - ymin;
+	_zDimension == zmax - zmin;
+
+
+
+	app->log("test 3 ");
+	
+
+
+
+};
+
 
 
 #ifdef XI_WIN
