@@ -21,7 +21,20 @@ Ptr<TextBoxCommandInput> _xDimension;
 Ptr<TextBoxCommandInput> _yDimension;
 Ptr<TextBoxCommandInput> _zDimension;
 
+double CalculatedX;
+double CalculatedY;
+double CalculatedZ;
+
 void CalculateDimensions();
+
+class ScaleInputChangedHandler : public adsk::core::InputChangedEventHandler
+{
+public:
+	void notify(const Ptr<InputChangedEventArgs>& eventArgs) override
+	{
+		
+	}
+};
 
 
 class MySelectHandler : public SelectionEventHandler
@@ -40,6 +53,16 @@ public:
 		app->log("test 2 ");
 
 		CalculateDimensions();
+
+		Ptr<Design> des = app->activeProduct();
+		std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX,"mm", true);
+		_xDimension->text(CalculatedXText);
+
+		std::string CalculatedYText = des->unitsManager()->formatInternalValue(CalculatedY, "mm", true);
+		_yDimension->text(CalculatedYText);
+
+		std::string CalculatedZText = des->unitsManager()->formatInternalValue(CalculatedZ, "mm", true);
+		_zDimension->text(CalculatedZText);
 
 	}
 };
@@ -60,7 +83,9 @@ public:
 			std::to_string(_selectedBodies->maxPoint()->y()) + ", " +
 			std::to_string(_selectedBodies->maxPoint()->z()));
 		// Display the results.
-		app->log("test ");
+		app->log(std::to_string(CalculatedX));
+		app->log(std::to_string(CalculatedY));
+		app->log(std::to_string(CalculatedZ));
 		
 	}
 };
@@ -192,9 +217,9 @@ void CalculateDimensions() {
 	double zmin = _selectedBodies->minPoint()->z();
 	double zmax = _selectedBodies->maxPoint()->z();
 
-	_xDimension == xmax- xmin;
-	_yDimension == ymax - ymin;
-	_zDimension == zmax - zmin;
+	CalculatedX = xmax- xmin;
+	CalculatedY = ymax- ymin;
+	CalculatedZ = zmax- zmin;
 
 
 
