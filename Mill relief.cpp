@@ -21,6 +21,11 @@ Ptr<TextBoxCommandInput> _xDimension;
 Ptr<TextBoxCommandInput> _yDimension;
 Ptr<TextBoxCommandInput> _zDimension;
 
+Ptr<ValueCommandInput> _setXDimension;
+Ptr<ValueCommandInput> _setYDimension;
+Ptr<ValueCommandInput> _setZDimension;
+
+
 double CalculatedX;
 double CalculatedY;
 double CalculatedZ;
@@ -50,19 +55,21 @@ public:
 
 
 		_selectedBodies = body->boundingBox();
-		app->log("test 2 ");
-
+		
 		CalculateDimensions();
 
 		Ptr<Design> des = app->activeProduct();
 		std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX,"mm", true);
 		_xDimension->text(CalculatedXText);
+		_setXDimension->value(CalculatedX);
 
 		std::string CalculatedYText = des->unitsManager()->formatInternalValue(CalculatedY, "mm", true);
 		_yDimension->text(CalculatedYText);
+		_setYDimension->value(CalculatedY);
 
 		std::string CalculatedZText = des->unitsManager()->formatInternalValue(CalculatedZ, "mm", true);
 		_zDimension->text(CalculatedZText);
+		_setZDimension->value(CalculatedZ);
 
 	}
 };
@@ -109,12 +116,17 @@ public:
 					"Select the bodies.");
 				bodiesInput->addSelectionFilter("Bodies");
 
+				_setXDimension = inputs->addValueInput("setXDimension", "Set X Dimension", "mm", ValueInput::createByReal(CalculatedX));
+
+				_setYDimension = inputs->addValueInput("setXDimension", "Set Y Dimension", "mm", ValueInput::createByReal(CalculatedY));
+
+				_setZDimension = inputs->addValueInput("setXDimension", "Set Z Dimension", "mm", ValueInput::createByReal(CalculatedZ));
+
 				_xDimension = inputs->addTextBoxCommandInput("xDimension", "Dimension in X", "", 1, true);
 
 				_yDimension = inputs->addTextBoxCommandInput("yDimension", "Dimension in Y", "", 1, true);
 
 				_zDimension = inputs->addTextBoxCommandInput("zDimension", "Dimension in Z", "", 1, true);
-
 
 
 				Ptr<SelectionEvent> select = cmd->select();
@@ -220,13 +232,6 @@ void CalculateDimensions() {
 	CalculatedX = xmax- xmin;
 	CalculatedY = ymax- ymin;
 	CalculatedZ = zmax- zmin;
-
-
-
-	app->log("test 3 ");
-	
-
-
 
 };
 
