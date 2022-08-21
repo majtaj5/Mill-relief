@@ -27,13 +27,13 @@ public:
 		if (!eventArgs)
 			return;
 		Ptr<Selection> selection = eventArgs->selection();
-		
+
 		Ptr<BRepBody> body = selection->entity();
-		
+
 
 		_selectedBodies = body->boundingBox();
 		app->log("test 2 ");
-		
+
 	}
 };
 
@@ -43,7 +43,7 @@ class OnExecuteEventHander : public adsk::core::CommandEventHandler
 public:
 	void notify(const Ptr<CommandEventArgs>& eventArgs) override
 	{
-		
+
 		// Display the results.
 		app->log("Min Point: " + std::to_string(_selectedBodies->minPoint()->x()) + ", " +
 			std::to_string(_selectedBodies->minPoint()->y()) + ", " +
@@ -54,9 +54,6 @@ public:
 			std::to_string(_selectedBodies->maxPoint()->z()));
 		// Display the results.
 		app->log("test ");
-		// Get the bounding box.
-
-		
 		
 	}
 };
@@ -79,23 +76,14 @@ public:
 				Ptr<SelectionCommandInput> bodiesInput = inputs->addSelectionInput("bodiesInput", "Bodies",
 					"Select the bodies.");
 				bodiesInput->addSelectionFilter("Bodies");
-				
+
 				Ptr<SelectionEvent> select = cmd->select();
-				if (!select)
-					return;
+
 				select->add(&m_selectHandler);
-			
 
-			
-				
-
-			
-			
-	
 				// Connect to the command executed event.
 				Ptr<CommandEvent> onExec = cmd->execute();
 				bool isOk = onExec->add(&onExecuteHandler_);
-
 			}
 		}
 	}
@@ -106,18 +94,18 @@ private:
 } _cmdCreated;
 bool checkReturn(Ptr<Base> returnObj)
 {
-    if (returnObj)
-        return true;
-    else
-        if (app && ui)
-        {
-            std::string errDesc;
-            app->getLastError(&errDesc);
-            ui->messageBox(errDesc);
-            return false;
-        }
-        else
-            return false;
+	if (returnObj)
+		return true;
+	else
+		if (app && ui)
+		{
+			std::string errDesc;
+			app->getLastError(&errDesc);
+			ui->messageBox(errDesc);
+			return false;
+		}
+		else
+			return false;
 }
 
 extern "C" XI_EXPORT bool run(const char* context)
@@ -130,34 +118,34 @@ extern "C" XI_EXPORT bool run(const char* context)
 	if (!ui)
 		return false;
 
-	
-    // Create a command definition and add a button to the CREATE panel.
-    Ptr<CommandDefinition> cmdDef = ui->commandDefinitions()->addButtonDefinition("sreliefCPPAddIn", "MMill relief", "a Mill relief component", "Resources/Mill relief");
-    if (!checkReturn(cmdDef))
-        return false;
 
-    Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidModifyPanel");
-    if (!checkReturn(createPanel))
-        return false;
+	// Create a command definition and add a button to the CREATE panel.
+	Ptr<CommandDefinition> cmdDef = ui->commandDefinitions()->addButtonDefinition("sreliefCPPAddIn", "MMill relief", "a Mill relief component", "Resources/Mill relief");
+	if (!checkReturn(cmdDef))
+		return false;
 
-    Ptr<CommandControl> gearButton = createPanel->controls()->addCommand(cmdDef);
-    if (!checkReturn(gearButton))
-        return false;
+	Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidModifyPanel");
+	if (!checkReturn(createPanel))
+		return false;
+
+	Ptr<CommandControl> gearButton = createPanel->controls()->addCommand(cmdDef);
+	if (!checkReturn(gearButton))
+		return false;
 
 	// Connect to the Command Created event.
-	     Ptr<CommandCreatedEvent> commandCreatedEvent = cmdDef->commandCreated();
-	     commandCreatedEvent->add(&_cmdCreated);
+	Ptr<CommandCreatedEvent> commandCreatedEvent = cmdDef->commandCreated();
+	commandCreatedEvent->add(&_cmdCreated);
 
-    
 
-    std::string strContext = context;
-    if (strContext.find("IsApplicationStartup", 0) != std::string::npos)
-    {
-        if (strContext.find("false", 0) != std::string::npos)
-        {
-            ui->messageBox("The \"Mill relief\" command has been added\nto the CREATE panel of the MODEL workspace.");
-        }
-    }
+
+	std::string strContext = context;
+	if (strContext.find("IsApplicationStartup", 0) != std::string::npos)
+	{
+		if (strContext.find("false", 0) != std::string::npos)
+		{
+			ui->messageBox("The \"Mill relief\" command has been added\nto the CREATE panel of the MODEL workspace.");
+		}
+	}
 
 
 	return true;
@@ -165,18 +153,18 @@ extern "C" XI_EXPORT bool run(const char* context)
 
 extern "C" XI_EXPORT bool stop(const char* context)
 {
-	
-	  Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidModifyPanel");
-    if (!checkReturn(createPanel))
-        return false;
 
-    Ptr<CommandControl> gearButton = createPanel->controls()->itemById("sreliefCPPAddIn");
-    if (checkReturn(gearButton))
-        gearButton->deleteMe();
-    
-    Ptr<CommandDefinition> cmdDef = ui->commandDefinitions()->itemById("sreliefCPPAddIn");
-    if (checkReturn(cmdDef))
-        cmdDef->deleteMe();
+	Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidModifyPanel");
+	if (!checkReturn(createPanel))
+		return false;
+
+	Ptr<CommandControl> gearButton = createPanel->controls()->itemById("sreliefCPPAddIn");
+	if (checkReturn(gearButton))
+		gearButton->deleteMe();
+
+	Ptr<CommandDefinition> cmdDef = ui->commandDefinitions()->itemById("sreliefCPPAddIn");
+	if (checkReturn(cmdDef))
+		cmdDef->deleteMe();
 	return true;
 }
 
