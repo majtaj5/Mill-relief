@@ -74,7 +74,16 @@ public:
 	}
 };
 
-//todo class UnSelectHandler 
+class MyUnSelectHandler : public SelectionEventHandler
+{
+public:
+	void notify(const Ptr<SelectionEventArgs>& eventArgs) override
+	{
+		app->log("un select");
+
+
+	}
+};
 
 // CommandExecuted event handler.
 class OnExecuteEventHander : public adsk::core::CommandEventHandler
