@@ -37,7 +37,7 @@ class ScaleInputChangedHandler : public adsk::core::InputChangedEventHandler
 public:
 	void notify(const Ptr<InputChangedEventArgs>& eventArgs) override
 	{
-		
+		//todo calculate dimensions before scale and put it into Ptr<TextBoxCommandInput>
 	}
 };
 
@@ -74,12 +74,15 @@ public:
 	}
 };
 
+//todo class UnSelectHandler 
+
 // CommandExecuted event handler.
 class OnExecuteEventHander : public adsk::core::CommandEventHandler
 {
 public:
 	void notify(const Ptr<CommandEventArgs>& eventArgs) override
 	{
+		//todo Scale item 
 
 		// Display the results.
 		app->log("Min Point: " + std::to_string(_selectedBodies->minPoint()->x()) + ", " +
@@ -107,9 +110,12 @@ public:
 			Ptr<Command> cmd = eventArgs->command();
 			if (cmd)
 			{
+
 				Ptr<Command> cmd = eventArgs->command();
 				// Define the inputs.
 				Ptr<CommandInputs> inputs = cmd->commandInputs();
+
+				//todo   Define the default values
 
 				// Add an input to have a body selected.
 				Ptr<SelectionCommandInput> bodiesInput = inputs->addSelectionInput("bodiesInput", "Bodies",
@@ -235,7 +241,7 @@ void CalculateDimensions() {
 
 };
 
-
+//todo scale function
 
 #ifdef XI_WIN
 
