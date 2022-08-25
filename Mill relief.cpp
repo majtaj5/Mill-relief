@@ -6,6 +6,8 @@
 #include <format>
 #include <string>
 #include <Fusion/BRep/BRepBody.h>
+using namespace std;
+
 
 
 using namespace adsk::core;
@@ -20,6 +22,7 @@ Ptr<BoundingBox3D> _selectedBodies;
 Ptr<TextBoxCommandInput> _xDimension;
 Ptr<TextBoxCommandInput> _yDimension;
 Ptr<TextBoxCommandInput> _zDimension;
+
 
 Ptr<ValueCommandInput> _setXDimension;
 Ptr<ValueCommandInput> _setYDimension;
@@ -37,7 +40,25 @@ class ScaleInputChangedHandler : public adsk::core::InputChangedEventHandler
 public:
 	void notify(const Ptr<InputChangedEventArgs>& eventArgs) override
 	{
-		//todo calculate dimensions before scale and put it into Ptr<TextBoxCommandInput>
+		
+		Ptr<CommandInput> changedInput = eventArgs->input();
+
+		double userInputX = _setXDimension->value();
+
+		app->log(changedInput->id());
+		if (changedInput->id() == "setXDimension") {
+
+			app->log("jebac X");
+			app->log(std::to_string(userInputX));
+			
+			
+			_xDimension->text(std::to_string(userInputX));
+
+		}
+		else if (changedInput->id() == "setYDimension") {
+
+			app->log("jebac Y");
+		}
 	}
 };
 
@@ -124,9 +145,9 @@ public:
 
 				_setXDimension = inputs->addValueInput("setXDimension", "Set X Dimension", "mm", ValueInput::createByReal(CalculatedX));
 
-				_setYDimension = inputs->addValueInput("setXDimension", "Set Y Dimension", "mm", ValueInput::createByReal(CalculatedY));
+				_setYDimension = inputs->addValueInput("setYDimension", "Set Y Dimension", "mm", ValueInput::createByReal(CalculatedY));
 
-				_setZDimension = inputs->addValueInput("setXDimension", "Set Z Dimension", "mm", ValueInput::createByReal(CalculatedZ));
+				_setZDimension = inputs->addValueInput("setZDimension", "Set Z Dimension", "mm", ValueInput::createByReal(CalculatedZ));
 
 				_xDimension = inputs->addTextBoxCommandInput("xDimension", "Dimension in X", "", 1, true);
 
@@ -142,6 +163,14 @@ public:
 				// Connect to the command executed event.
 				Ptr<CommandEvent> onExec = cmd->execute();
 				bool isOk = onExec->add(&onExecuteHandler_);
+
+				// Connect to the command related events.
+				Ptr<InputChangedEvent> inputChangedEvent = cmd->inputChanged();
+				if (!inputChangedEvent)
+					return;
+				isOk = inputChangedEvent->add(&_ScaleInputChangedHandler);
+				if (!isOk)
+					return;
 			}
 		}
 	}
@@ -149,6 +178,7 @@ public:
 private:
 	OnExecuteEventHander onExecuteHandler_;
 	MySelectHandler m_selectHandler;
+	ScaleInputChangedHandler _ScaleInputChangedHandler;
 } _cmdCreated;
 bool checkReturn(Ptr<Base> returnObj)
 {
@@ -239,6 +269,15 @@ void CalculateDimensions() {
 	CalculatedY = ymax- ymin;
 	CalculatedZ = zmax- zmin;
 
+};
+
+std::string PrintOutvalue() {
+
+
+	//todo  PrintOut function
+	std::string greeting = "Hello";
+
+	return greeting;
 };
 
 //todo scale function
