@@ -52,8 +52,10 @@ public:
 			app->log(std::to_string(userInputX));
 			
 			
-			_xDimension->text(std::to_string(userInputX));
-
+			Ptr<Design> des = app->activeProduct();
+			std::string CalculatedXText2 = des->unitsManager()->formatInternalValue(userInputX, "mm", true);
+			_xDimension->text(CalculatedXText2);
+			
 		}
 		else if (changedInput->id() == "setYDimension") {
 
@@ -121,7 +123,7 @@ public:
 	}
 };
 // CommandCreated event handler.
-class CommandCreatedEventHandler : public adsk::core::CommandCreatedEventHandler
+class ScaleCommandCreatedEventHandler : public adsk::core::CommandCreatedEventHandler
 {
 public:
 	void notify(const Ptr<CommandCreatedEventArgs>& eventArgs) override
@@ -268,7 +270,15 @@ void CalculateDimensions() {
 	CalculatedX = xmax- xmin;
 	CalculatedY = ymax- ymin;
 	CalculatedZ = zmax- zmin;
+};
 
+string Printout(double _value) {
+	double value = _value;
+
+	Ptr<Design> des = app->activeProduct();
+		std::string valueForprintOut = des->unitsManager()->formatInternalValue(value,"mm", true);
+	
+		return valueForprintOut;
 };
 
 std::string PrintOutvalue() {

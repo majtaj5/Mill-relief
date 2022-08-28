@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Mill relief.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Mill relief.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="NewFilter1">
+      <UniqueIdentifier>{3c8d44e9-355c-4a79-8b72-68ade7933159}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
