@@ -74,7 +74,24 @@ public:
 	}
 };
 
-//todo class UnSelectHandler 
+class MyUnSelectHandler : public SelectionEventHandler
+{
+public:
+	void notify(const Ptr<SelectionEventArgs>& eventArgs) override
+	{
+		//Ptr<Command> cmd = eventArgs->command();
+
+			
+			Ptr<CommandInputs> inputs = cmd->commandInputs();
+		//app->log("un select");
+		CalculatedX = 0;
+		CalculatedY = 0;
+		CalculatedZ = 0;
+		Ptr<SelectionCommandInput> bodiesInput = inputs->addSelectionInput("bodiesInput", "Bodies",
+			"Select the bodies.");
+		bodiesInput->addSelectionFilter("Bodies");
+	}
+};
 
 // CommandExecuted event handler.
 class OnExecuteEventHander : public adsk::core::CommandEventHandler
@@ -116,7 +133,9 @@ public:
 				Ptr<CommandInputs> inputs = cmd->commandInputs();
 
 				//todo   Define the default values
-
+				CalculatedX = 0;
+				CalculatedY = 0;
+				CalculatedZ = 0;
 				// Add an input to have a body selected.
 				Ptr<SelectionCommandInput> bodiesInput = inputs->addSelectionInput("bodiesInput", "Bodies",
 					"Select the bodies.");
@@ -134,10 +153,12 @@ public:
 
 				_zDimension = inputs->addTextBoxCommandInput("zDimension", "Dimension in Z", "", 1, true);
 
-
 				Ptr<SelectionEvent> select = cmd->select();
 
 				select->add(&m_selectHandler);
+
+				Ptr<SelectionEvent> unselect = cmd->unselect();
+				unselect->add(&m_unSelectHandler);
 
 				// Connect to the command executed event.
 				Ptr<CommandEvent> onExec = cmd->execute();
@@ -149,7 +170,9 @@ public:
 private:
 	OnExecuteEventHander onExecuteHandler_;
 	MySelectHandler m_selectHandler;
+	MyUnSelectHandler m_unSelectHandler;
 } _cmdCreated;
+
 bool checkReturn(Ptr<Base> returnObj)
 {
 	if (returnObj)
