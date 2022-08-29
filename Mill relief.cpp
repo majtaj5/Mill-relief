@@ -29,6 +29,11 @@ Ptr<ValueCommandInput> _setZDimension;
 double CalculatedX;
 double CalculatedY;
 double CalculatedZ;
+double scaleX;
+double scaleY;
+double scaleZ;
+std::string _units = "";
+
 
 void CalculateDimensions();
 
@@ -37,7 +42,115 @@ class ScaleInputChangedHandler : public adsk::core::InputChangedEventHandler
 public:
 	void notify(const Ptr<InputChangedEventArgs>& eventArgs) override
 	{
-		//todo calculate dimensions before scale and put it into Ptr<TextBoxCommandInput>
+		Ptr<CommandInput> changedInput = eventArgs->input();
+		
+		double userInputX = _setXDimension->value();
+		double userInputY = _setYDimension->value();
+		double userInputZ = _setZDimension->value();
+		double scaleX = userInputX / CalculatedX ;
+		double scaleY = userInputY / CalculatedY;
+		double scaleZ = userInputZ / CalculatedZ;
+		app->log(changedInput->id());
+		if (changedInput->id() == "setXDimension") {
+
+			app->log("X");
+			if (userInputX != 0)
+			{
+				CalculatedX = scaleX * CalculatedX;
+				CalculatedY = scaleX * CalculatedY;
+				CalculatedZ = scaleX * CalculatedZ;
+
+			}
+			//return;
+			app->log(std::to_string(userInputX));
+			_xDimension->text(std::to_string(userInputX));
+			//_xDimension->unitType(_units);
+			//units = "mm";
+			app->log(std::to_string(CalculatedY));
+			_yDimension->text(std::to_string(CalculatedY));
+			app->log(std::to_string(CalculatedZ));
+			_zDimension->text(std::to_string(CalculatedZ));
+
+
+			Ptr<Design> des = app->activeProduct();
+			std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX, "mm", true);
+			_xDimension->text(CalculatedXText);
+
+			
+			std::string CalculatedYText = des->unitsManager()->formatInternalValue(CalculatedY, "mm", true);
+			_yDimension->text(CalculatedYText);
+
+			std::string CalculatedZText = des->unitsManager()->formatInternalValue(CalculatedZ, "mm", true);
+			_zDimension->text(CalculatedZText);
+			//_setXDimension->value(CalculatedX);
+			
+		}
+
+
+		if (changedInput->id() == "setYDimension") {
+
+			app->log("Y");
+			if (userInputY != 0)
+			{
+				CalculatedX = scaleY * CalculatedX;
+				CalculatedY = scaleY * CalculatedY;
+				CalculatedZ = scaleY * CalculatedZ;
+
+			}
+			//return;
+			app->log(std::to_string(CalculatedX));
+			_xDimension->text(std::to_string(CalculatedX));
+			//_xDimension->unitType(_units);
+			//units = "mm";
+			app->log(std::to_string(userInputY));
+			_yDimension->text(std::to_string(userInputY));
+			app->log(std::to_string(CalculatedZ));
+			_zDimension->text(std::to_string(CalculatedZ));
+
+			Ptr<Design> des = app->activeProduct();
+			std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX, "mm", true);
+			_xDimension->text(CalculatedXText);
+
+
+			std::string CalculatedYText = des->unitsManager()->formatInternalValue(CalculatedY, "mm", true);
+			_yDimension->text(CalculatedYText);
+
+			std::string CalculatedZText = des->unitsManager()->formatInternalValue(CalculatedZ, "mm", true);
+			_zDimension->text(CalculatedZText);
+
+		}
+		if (changedInput->id() == "setZDimension") {
+
+			app->log("Z");
+			if (userInputZ != 0)
+			{
+				CalculatedX = scaleZ * CalculatedX;
+				CalculatedY = scaleZ * CalculatedY;
+				CalculatedZ = scaleZ * CalculatedZ;
+
+			}
+			//return;
+			app->log(std::to_string(CalculatedX));
+			_xDimension->text(std::to_string(CalculatedX));
+			//_xDimension->unitType(_units);
+			//units = "mm";
+			app->log(std::to_string(CalculatedY));
+			_yDimension->text(std::to_string(CalculatedY));
+			app->log(std::to_string(userInputZ));
+			_zDimension->text(std::to_string(userInputZ));
+
+			Ptr<Design> des = app->activeProduct();
+			std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX, "mm", true);
+			_xDimension->text(CalculatedXText);
+
+
+			std::string CalculatedYText = des->unitsManager()->formatInternalValue(CalculatedY, "mm", true);
+			_yDimension->text(CalculatedYText);
+
+			std::string CalculatedZText = des->unitsManager()->formatInternalValue(CalculatedZ, "mm", true);
+			_zDimension->text(CalculatedZText);
+		}
+		
 	}
 };
 
@@ -80,16 +193,23 @@ public:
 	void notify(const Ptr<SelectionEventArgs>& eventArgs) override
 	{
 		//Ptr<Command> cmd = eventArgs->command();
-
-			
-			Ptr<CommandInputs> inputs = cmd->commandInputs();
-		//app->log("un select");
 		CalculatedX = 0;
 		CalculatedY = 0;
 		CalculatedZ = 0;
-		Ptr<SelectionCommandInput> bodiesInput = inputs->addSelectionInput("bodiesInput", "Bodies",
-			"Select the bodies.");
-		bodiesInput->addSelectionFilter("Bodies");
+
+		Ptr<Design> des = app->activeProduct();
+		std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX, "mm", true);
+		_xDimension->text(CalculatedXText);
+		_setXDimension->value(CalculatedX);
+
+		std::string CalculatedYText = des->unitsManager()->formatInternalValue(CalculatedY, "mm", true);
+		_yDimension->text(CalculatedYText);
+		_setYDimension->value(CalculatedY);
+
+		std::string CalculatedZText = des->unitsManager()->formatInternalValue(CalculatedZ, "mm", true);
+		_zDimension->text(CalculatedZText);
+		_setZDimension->value(CalculatedZ);
+		
 	}
 };
 
@@ -143,15 +263,17 @@ public:
 
 				_setXDimension = inputs->addValueInput("setXDimension", "Set X Dimension", "mm", ValueInput::createByReal(CalculatedX));
 
-				_setYDimension = inputs->addValueInput("setXDimension", "Set Y Dimension", "mm", ValueInput::createByReal(CalculatedY));
+				_setYDimension = inputs->addValueInput("setYDimension", "Set Y Dimension", "mm", ValueInput::createByReal(CalculatedY));
 
-				_setZDimension = inputs->addValueInput("setXDimension", "Set Z Dimension", "mm", ValueInput::createByReal(CalculatedZ));
+				_setZDimension = inputs->addValueInput("setZDimension", "Set Z Dimension", "mm", ValueInput::createByReal(CalculatedZ));
 
 				_xDimension = inputs->addTextBoxCommandInput("xDimension", "Dimension in X", "", 1, true);
 
 				_yDimension = inputs->addTextBoxCommandInput("yDimension", "Dimension in Y", "", 1, true);
 
 				_zDimension = inputs->addTextBoxCommandInput("zDimension", "Dimension in Z", "", 1, true);
+
+
 
 				Ptr<SelectionEvent> select = cmd->select();
 
@@ -163,6 +285,17 @@ public:
 				// Connect to the command executed event.
 				Ptr<CommandEvent> onExec = cmd->execute();
 				bool isOk = onExec->add(&onExecuteHandler_);
+
+				/*Ptr<TextBoxCommandInput>onExec = cmd->execute();
+				bool isOk = onExec->add(&onExecuteHandler_);*/
+
+				// Connect to the command related events.
+				Ptr<InputChangedEvent> inputChangedEvent = cmd->inputChanged();
+				if (!inputChangedEvent)
+					return;
+				isOk = inputChangedEvent->add(&_ScaleInputChangedHandler);
+				if (!isOk)
+					return;
 			}
 		}
 	}
@@ -171,6 +304,7 @@ private:
 	OnExecuteEventHander onExecuteHandler_;
 	MySelectHandler m_selectHandler;
 	MyUnSelectHandler m_unSelectHandler;
+	ScaleInputChangedHandler _ScaleInputChangedHandler;
 } _cmdCreated;
 
 bool checkReturn(Ptr<Base> returnObj)
@@ -265,6 +399,11 @@ void CalculateDimensions() {
 };
 
 //todo scale function
+void Calculate() {
+	/*double scaleX = _setXDimension / _xDimension;
+	double scaleY = _setYDimension / _yDimension;
+	double scaleZ = _setZDimension / _zDimension;*/
+};
 
 #ifdef XI_WIN
 
