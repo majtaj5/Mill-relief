@@ -88,9 +88,12 @@ public:
 			
 			std::string CalculatedYText = des->unitsManager()->formatInternalValue(CalculatedY, "mm", true);
 			_yDimension->text(CalculatedYText);
+			_setYDimension->value(CalculatedY);
 
 			std::string CalculatedZText = des->unitsManager()->formatInternalValue(CalculatedZ, "mm", true);
 			_zDimension->text(CalculatedZText);
+			_setZDimension->value(CalculatedZ);
+
 			//_setXDimension->value(CalculatedX);
 			
 		}
@@ -121,13 +124,14 @@ public:
 			Ptr<Design> des = _app->activeProduct();
 			std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX, "mm", true);
 			_xDimension->text(CalculatedXText);
-
+			_setXDimension->value(CalculatedX);
 
 			std::string CalculatedYText = des->unitsManager()->formatInternalValue(CalculatedY, "mm", true);
 			_yDimension->text(CalculatedYText);
 
 			std::string CalculatedZText = des->unitsManager()->formatInternalValue(CalculatedZ, "mm", true);
 			_zDimension->text(CalculatedZText);
+			_setZDimension->value(CalculatedZ);
 
 		}
 		if (changedInput->id() == "setZDimension") {
@@ -155,10 +159,11 @@ public:
 			Ptr<Design> des = _app->activeProduct();
 			std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX, "mm", true);
 			_xDimension->text(CalculatedXText);
-
+			_setXDimension->value(CalculatedX);
 
 			std::string CalculatedYText = des->unitsManager()->formatInternalValue(CalculatedY, "mm", true);
 			_yDimension->text(CalculatedYText);
+			_setYDimension->value(CalculatedY);
 
 			std::string CalculatedZText = des->unitsManager()->formatInternalValue(CalculatedZ, "mm", true);
 			_zDimension->text(CalculatedZText);
