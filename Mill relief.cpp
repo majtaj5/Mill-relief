@@ -12,8 +12,12 @@ using namespace adsk::core;
 using namespace adsk::fusion;
 using namespace adsk::cam;
 
-Ptr<Application> app;
-Ptr<UserInterface> ui;
+Ptr<Application> _app;
+Ptr<UserInterface> _ui;
+Ptr<Product> _product;
+Ptr<Design> _design;
+
+
 
 // Global command input declarations.
 Ptr<BoundingBox3D> _selectedBodies;
@@ -24,6 +28,10 @@ Ptr<TextBoxCommandInput> _zDimension;
 Ptr<ValueCommandInput> _setXDimension;
 Ptr<ValueCommandInput> _setYDimension;
 Ptr<ValueCommandInput> _setZDimension;
+
+Ptr<BRepBody> _body;
+
+Ptr<ValueInput> _scaleFactor;
 
 
 double CalculatedX;
@@ -50,29 +58,30 @@ public:
 		double scaleX = userInputX / CalculatedX ;
 		double scaleY = userInputY / CalculatedY;
 		double scaleZ = userInputZ / CalculatedZ;
-		app->log(changedInput->id());
+		_app->log(changedInput->id());
 		if (changedInput->id() == "setXDimension") {
 
-			app->log("X");
+			_app->log("X");
 			if (userInputX != 0)
 			{
 				CalculatedX = scaleX * CalculatedX;
 				CalculatedY = scaleX * CalculatedY;
 				CalculatedZ = scaleX * CalculatedZ;
+				_scaleFactor = ValueInput::createByReal(scaleX);
 
 			}
 			//return;
-			app->log(std::to_string(userInputX));
+			_app->log(std::to_string(userInputX));
 			_xDimension->text(std::to_string(userInputX));
 			//_xDimension->unitType(_units);
 			//units = "mm";
-			app->log(std::to_string(CalculatedY));
+			_app->log(std::to_string(CalculatedY));
 			_yDimension->text(std::to_string(CalculatedY));
-			app->log(std::to_string(CalculatedZ));
+			_app->log(std::to_string(CalculatedZ));
 			_zDimension->text(std::to_string(CalculatedZ));
 
 
-			Ptr<Design> des = app->activeProduct();
+			Ptr<Design> des = _app->activeProduct();
 			std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX, "mm", true);
 			_xDimension->text(CalculatedXText);
 
@@ -89,7 +98,7 @@ public:
 
 		if (changedInput->id() == "setYDimension") {
 
-			app->log("Y");
+			_app->log("Y");
 			if (userInputY != 0)
 			{
 				CalculatedX = scaleY * CalculatedX;
@@ -98,16 +107,18 @@ public:
 
 			}
 			//return;
-			app->log(std::to_string(CalculatedX));
+
+			_app->log(std::to_string(CalculatedX));
 			_xDimension->text(std::to_string(CalculatedX));
 			//_xDimension->unitType(_units);
 			//units = "mm";
-			app->log(std::to_string(userInputY));
+
+			_app->log(std::to_string(userInputY));
 			_yDimension->text(std::to_string(userInputY));
-			app->log(std::to_string(CalculatedZ));
+			_app->log(std::to_string(CalculatedZ));
 			_zDimension->text(std::to_string(CalculatedZ));
 
-			Ptr<Design> des = app->activeProduct();
+			Ptr<Design> des = _app->activeProduct();
 			std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX, "mm", true);
 			_xDimension->text(CalculatedXText);
 
@@ -121,25 +132,27 @@ public:
 		}
 		if (changedInput->id() == "setZDimension") {
 
-			app->log("Z");
+			_app->log("Z");
 			if (userInputZ != 0)
 			{
 				CalculatedX = scaleZ * CalculatedX;
 				CalculatedY = scaleZ * CalculatedY;
 				CalculatedZ = scaleZ * CalculatedZ;
-
 			}
+
+
+
 			//return;
-			app->log(std::to_string(CalculatedX));
+			_app->log(std::to_string(CalculatedX));
 			_xDimension->text(std::to_string(CalculatedX));
 			//_xDimension->unitType(_units);
 			//units = "mm";
-			app->log(std::to_string(CalculatedY));
+			_app->log(std::to_string(CalculatedY));
 			_yDimension->text(std::to_string(CalculatedY));
-			app->log(std::to_string(userInputZ));
+			_app->log(std::to_string(userInputZ));
 			_zDimension->text(std::to_string(userInputZ));
 
-			Ptr<Design> des = app->activeProduct();
+			Ptr<Design> des = _app->activeProduct();
 			std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX, "mm", true);
 			_xDimension->text(CalculatedXText);
 
@@ -166,12 +179,13 @@ public:
 
 		Ptr<BRepBody> body = selection->entity();
 
+		_body = body;
 
 		_selectedBodies = body->boundingBox();
 		
 		CalculateDimensions();
 
-		Ptr<Design> des = app->activeProduct();
+		Ptr<Design> des = _app->activeProduct();
 		std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX,"mm", true);
 		_xDimension->text(CalculatedXText);
 		_setXDimension->value(CalculatedX);
@@ -197,7 +211,7 @@ public:
 		CalculatedY = 0;
 		CalculatedZ = 0;
 
-		Ptr<Design> des = app->activeProduct();
+		Ptr<Design> des = _app->activeProduct();
 		std::string CalculatedXText = des->unitsManager()->formatInternalValue(CalculatedX, "mm", true);
 		_xDimension->text(CalculatedXText);
 		_setXDimension->value(CalculatedX);
@@ -219,20 +233,35 @@ class OnExecuteEventHander : public adsk::core::CommandEventHandler
 public:
 	void notify(const Ptr<CommandEventArgs>& eventArgs) override
 	{
-		//todo Scale item 
+		Ptr<ObjectCollection> inputUniformColl = ObjectCollection::create();
+		
+		inputUniformColl->add(_body);
+
+		Ptr<Component> comp = _body->parentComponent();
+		
+		Ptr<ScaleFeatures> scales = comp->features()->scaleFeatures();
+
+		// Point for scale
+		Ptr<ConstructionPoint> centerPoint = comp->originConstructionPoint();
+
+		Ptr<ScaleFeatureInput> scaleUniformInput = scales->createInput(inputUniformColl, centerPoint, _scaleFactor);
+	
+
+		Ptr<ScaleFeature> scaleUniform = scales->add(scaleUniformInput);
+		
 
 		// Display the results.
-		app->log("Min Point: " + std::to_string(_selectedBodies->minPoint()->x()) + ", " +
+		_app->log("Min Point: " + std::to_string(_selectedBodies->minPoint()->x()) + ", " +
 			std::to_string(_selectedBodies->minPoint()->y()) + ", " +
 			std::to_string(_selectedBodies->minPoint()->z()));
 
-		app->log("Max Point: " + std::to_string(_selectedBodies->maxPoint()->x()) + ", " +
+		_app->log("Max Point: " + std::to_string(_selectedBodies->maxPoint()->x()) + ", " +
 			std::to_string(_selectedBodies->maxPoint()->y()) + ", " +
 			std::to_string(_selectedBodies->maxPoint()->z()));
 		// Display the results.
-		app->log(std::to_string(CalculatedX));
-		app->log(std::to_string(CalculatedY));
-		app->log(std::to_string(CalculatedZ));
+		_app->log(std::to_string(CalculatedX));
+		_app->log(std::to_string(CalculatedY));
+		_app->log(std::to_string(CalculatedZ));
 		
 	}
 };
@@ -312,11 +341,11 @@ bool checkReturn(Ptr<Base> returnObj)
 	if (returnObj)
 		return true;
 	else
-		if (app && ui)
+		if (_app && _ui)
 		{
 			std::string errDesc;
-			app->getLastError(&errDesc);
-			ui->messageBox(errDesc);
+			_app->getLastError(&errDesc);
+			_ui->messageBox(errDesc);
 			return false;
 		}
 		else
@@ -325,21 +354,29 @@ bool checkReturn(Ptr<Base> returnObj)
 
 extern "C" XI_EXPORT bool run(const char* context)
 {
-	app = Application::get();
-	if (!app)
+	_app = Application::get();
+	if (!_app)
 		return false;
 
-	ui = app->userInterface();
-	if (!ui)
+	_ui = _app->userInterface();
+	if (!_ui)
+		return false;
+
+	_product = _app->activeProduct();
+	if (!_product)
+		return false;
+
+	Ptr<Design> _design = _product;
+	if (!_design)
 		return false;
 
 
 	// Create a command definition and add a button to the CREATE panel.
-	Ptr<CommandDefinition> cmdDef = ui->commandDefinitions()->addButtonDefinition("sreliefCPPAddIn", "MMill relief", "a Mill relief component", "Resources/Mill relief");
+	Ptr<CommandDefinition> cmdDef = _ui->commandDefinitions()->addButtonDefinition("sreliefCPPAddIn", "MMill relief", "a Mill relief component", "Resources/Mill relief");
 	if (!checkReturn(cmdDef))
 		return false;
 
-	Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidModifyPanel");
+	Ptr<ToolbarPanel> createPanel = _ui->allToolbarPanels()->itemById("SolidModifyPanel");
 	if (!checkReturn(createPanel))
 		return false;
 
@@ -358,7 +395,7 @@ extern "C" XI_EXPORT bool run(const char* context)
 	{
 		if (strContext.find("false", 0) != std::string::npos)
 		{
-			ui->messageBox("The \"Mill relief\" command has been added\nto the CREATE panel of the MODEL workspace.");
+			_ui->messageBox("The \"Mill relief\" command has been added\nto the CREATE panel of the MODEL workspace.");
 		}
 	}
 
@@ -369,7 +406,7 @@ extern "C" XI_EXPORT bool run(const char* context)
 extern "C" XI_EXPORT bool stop(const char* context)
 {
 
-	Ptr<ToolbarPanel> createPanel = ui->allToolbarPanels()->itemById("SolidModifyPanel");
+	Ptr<ToolbarPanel> createPanel = _ui->allToolbarPanels()->itemById("SolidModifyPanel");
 	if (!checkReturn(createPanel))
 		return false;
 
@@ -377,7 +414,7 @@ extern "C" XI_EXPORT bool stop(const char* context)
 	if (checkReturn(gearButton))
 		gearButton->deleteMe();
 
-	Ptr<CommandDefinition> cmdDef = ui->commandDefinitions()->itemById("sreliefCPPAddIn");
+	Ptr<CommandDefinition> cmdDef = _ui->commandDefinitions()->itemById("sreliefCPPAddIn");
 	if (checkReturn(cmdDef))
 		cmdDef->deleteMe();
 	return true;
